@@ -14,7 +14,7 @@ class Auth
             return false;
         }
 
-        return $user->getPassword() === $password;
+        return $user->verifyPassword($password);
     }
 
     /**

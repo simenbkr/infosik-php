@@ -25,8 +25,8 @@ class LoginController extends Controller
     function login()
     {
         $request = $this->app->request;
-        $username = $request->post('username');
-        $password = $request->post('password');
+        $username = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
+        $password = filter_var($request->post('password'), FILTER_SANITIZE_STRING);
 
         if ( Auth::checkCredentials($username, $password) ) {
             $user = User::findByUser($username);

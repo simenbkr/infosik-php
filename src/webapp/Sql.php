@@ -2,6 +2,8 @@
 
 namespace ttm4135\webapp;
 
+use ttm4135\webapp\models\User;
+
 if(!defined('DB_PATH')){
     define('DB_PATH', __DIR__ . '/../../db/app.db');
 }
@@ -32,7 +34,7 @@ class Sql extends \PDO{
             self::$__instance = self::getDB();
         }
 
-        $q1 = "CREATE TABLE users (id INTEGER PRIMARY KEY, username VARCHAR(50), password VARCHAR(50), email varchar(50),  bio varhar(50), isadmin INTEGER);";
+        $q1 = "CREATE TABLE users (id INTEGER PRIMARY KEY, username VARCHAR(50), password VARCHAR(256), salt VARCHAR(50), email varchar(50),  bio varhar(50), isadmin INTEGER);";
 
         self::$__instance->exec($q1);
 
@@ -47,12 +49,21 @@ class Sql extends \PDO{
             self::$__instance = self::getDB();
         }
 
+        //$q1 = "INSERT INTO users(username, password, isadmin) VALUES ('admin', 'admin', 1)";
+        //$q2 = "INSERT INTO users(username, password) VALUES ('bob', 'bob')";
 
-        $q1 = "INSERT INTO users(username, password, isadmin) VALUES ('admin', 'admin', 1)";
-        $q2 = "INSERT INTO users(username, password) VALUES ('bob', 'bob')";
+        //self::$__instance->exec($q1);
+        //self::$__instance->exec($q2);
 
-        self::$__instance->exec($q1);
-        self::$__instance->exec($q2);
+        $admin_salt = User::genRandomStr();
+        $admin_pw = User::hashPassword('admin', $admin_salt);
+        $query = "INSERT INTO users (username, password, salt, isadmin) VALUES('admin','$admin_pw','$admin_salt', '1' )";
+        self::$__instance->query($query);
+
+        $bob_salt = User::genRandomStr();
+        $bob_pw = User::hashPassword('bob', $bob_salt);
+        $query = "INSERT INTO users (username, password, salt, isadmin) VALUES('bob', '$bob_pw', '$bob_salt', '0')";
+        self::$__instance->query($query);
 
         print "[ttm4135] Done inserting dummy users." . PHP_EOL;
     }

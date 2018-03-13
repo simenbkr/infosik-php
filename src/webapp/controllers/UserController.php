@@ -25,23 +25,23 @@ class UserController extends Controller
 
     function create()		  
     {
-        $request = $this->app->request;
-        $username = $request->post('username');
-        $password = $request->post('password');
+        $request    = $this->app->request;
+        $username   = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
+        $password   = filter_var($request->post('password'), FILTER_SANITIZE_STRING);
+        $user       = User::makeEmpty();
 
-
-        $user = User::makeEmpty();
         $user->setUsername($username);
-        $user->setPassword($password);
+        $user->setSalt(User::genRandomStr());
+        $user->setPassword(User::hashPassword($password, $user->getSalt()));
+        $user->setIsAdmin(0);
 
-        if($request->post('email'))
-        {
-          $email = $request->post('email');
+        if($request->post('email')) {
+          $email = filter_var($request->post('email'), FILTER_SANITIZE_EMAIL);
           $user->setEmail($email);
         }
-        if($request->post('bio'))
-        {
-          $bio = $request->post('bio');
+
+        if($request->post('bio')) {
+          $bio = filter_var($request->post('bio'), FILTER_SANITIZE_STRING);
           $user->setBio($bio);
         }
 
@@ -120,12 +120,14 @@ class UserController extends Controller
 
             $request = $this->app->request;
 
-            $username = $request->post('username');
-            $password = $request->post('password');
-            $email = $request->post('email');
-            $bio = $request->post('bio');
+            $username   = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
+            $password   = filter_var($request->post('password'), FILTER_SANITIZE_STRING);
+            $salt       = User::genRandomStr();
+            $password   = User::hashPassword($password, $salt);
+            $email      = filter_var($request->post('email'), FILTER_SANITIZE_EMAIL);
+            $bio        = filter_var($request->post('bio'),  FILTER_SANITIZE_STRING);
 
-            $isAdmin = ($request->post('isAdmin') != null);
+            $isAdmin = ($request->post('isAdmin') != null ? 1 : 0);
             
 
             $user->setUsername($username);

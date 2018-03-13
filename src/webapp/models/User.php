@@ -10,12 +10,13 @@ class User
     protected $username;
     protected $password;
     protected $email;
+    protected $salt;
     protected $bio = 'Bio is empty.';
     protected $isAdmin = 0;
 
     static $app;
 
-    public static function make($id, $username, $password, $email, $bio, $isAdmin )
+    public static function make($id, $username, $password, $salt, $email, $bio, $isAdmin )
     {
         $user = new User();
         $user->id = $id;
@@ -24,6 +25,7 @@ class User
         $user->email = $email;
         $user->bio = $bio;
         $user->isAdmin = $isAdmin;
+        $user->salt = $salt;
 
         return $user;
     }
@@ -40,19 +42,18 @@ class User
     {
 
         if($this->id === null) {
-            $st = Sql::getDB()->prepare('INSERT INTO users (username, password, email, bio, isadmin)
-                                                  VALUES(:username, :pw, :email, :bio, :isadmin)');
-
+            $st = Sql::getDB()->prepare('INSERT INTO users (username, password, salt, email, bio, isadmin)
+                                                  VALUES            (:username, :pw, :salt, :email, :bio, :isadmin)');
         } else {
-            $st = Sql::getDB()->prepare('UPDATE users SET username=:username, password=:pw, email=:email, 
+            $st = Sql::getDB()->prepare('UPDATE users SET username=:username, password=:pw, salt=:salt, email=:email, 
                                                   bio=:bio, isadmin=:isadmin WHERE id=:id');
 
             $st->bindParam(':id', $this->id);
-
         }
 
         $st->bindParam(':username', $this->username);
-        $st->bindParam(':password', $this->password);
+        $st->bindParam(':pw', $this->password);
+        $st->bindParam(':salt', $this->salt);
         $st->bindParam(':email', $this->email);
         $st->bindParam(':bio', $this->bio);
         $st->bindParam(':isadmin', $this->isAdmin);
@@ -61,10 +62,9 @@ class User
 
     public function delete()
     {
-        $query = sprintf(self::DELETE_QUERY,
-            $this->id
-        );
-        return self::$app->db->exec($query);
+        $st = Sql::getDB()->prepare('DELETE FROM users WHERE id=:id');
+        $st->bindParam(':id', $this->id);
+        $st->execute();
     }
 
     public function getId()
@@ -95,6 +95,14 @@ class User
     public function isAdmin()
     {
         return $this->isAdmin === "1";
+    }
+
+    public function getSalt(){
+        return $this->salt;
+    }
+
+    public function setSalt($salt){
+        $this->salt = $salt;
     }
 
     public function setId($id)
@@ -195,10 +203,34 @@ class User
             $row['id'],
             $row['username'],
             $row['password'],
+            $row['salt'],
             $row['email'],
             $row['bio'],
             $row['isadmin']
         );
+    }
+
+    public static function hashPassword($password, $salt){
+
+        $options = array(
+            'salt' => $salt
+        );
+
+        return password_hash($password, PASSWORD_DEFAULT, $options);
+    }
+
+    public function verifyPassword($password){
+        return password_verify($password, $this->password);
+    }
+
+    public static function genRandomStr($length = 22){
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $count = strlen($chars);
+        for ($i = 0, $result = ''; $i < $length; $i++) {
+            $index = rand(0, $count - 1);
+            $result .= substr($chars, $index, 1);
+        }
+        return $result;
     }
 
 }
