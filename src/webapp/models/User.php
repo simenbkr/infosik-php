@@ -6,11 +6,6 @@ use ttm4135\webapp\Sql;
 
 class User
 {
-    const INSERT_QUERY = "INSERT INTO users(username, password, email, bio, isadmin) VALUES('%s', '%s', '%s' , '%s' , '%s')";
-    const UPDATE_QUERY = "UPDATE users SET username='%s', password='%s', email='%s', bio='%s', isadmin='%s' WHERE id='%s'";
-    const DELETE_QUERY = "DELETE FROM users WHERE id='%s'";
-    const FIND_BY_NAME_QUERY = "SELECT * FROM users WHERE username='%s'";
-    const FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id='%s'";
     protected $id = null;
     protected $username;
     protected $password;
@@ -140,8 +135,6 @@ class User
      */
     public static function findById($userid)
     {
-        //$query = sprintf(self::FIND_BY_ID_QUERY, $userid);
-        //$result = self::$app->db->query($query, \PDO::FETCH_ASSOC);
 
         $st = Sql::getDB()->prepare('SELECT * FROM users WHERE id=:id');
         $st->bindParam(':id', $userid);
@@ -166,8 +159,6 @@ class User
      */
     public static function findByUser($username)
     {
-        //$query = sprintf(self::FIND_BY_NAME_QUERY, $username);
-        //$result = self::$app->db->query($query, \PDO::FETCH_ASSOC);
 
         $st = Sql::getDB()->prepare('SELECT * FROM users WHERE username=:username');
         $st->bindParam(':username', $username);
