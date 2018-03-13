@@ -2,6 +2,8 @@
 
 namespace ttm4135\webapp\models;
 
+use ttm4135\webapp\Sql;
+
 class User
 {
     const INSERT_QUERY = "INSERT INTO users(username, password, email, bio, isadmin) VALUES('%s', '%s', '%s' , '%s' , '%s')";
@@ -18,8 +20,7 @@ class User
 
     static $app;
 
-
-    static function make($id, $username, $password, $email, $bio, $isAdmin )
+    public static function make($id, $username, $password, $email, $bio, $isAdmin )
     {
         $user = new User();
         $user->id = $id;
@@ -32,7 +33,7 @@ class User
         return $user;
     }
 
-    static function makeEmpty()
+    public static function makeEmpty()
     {
         return new User();
     }
@@ -40,30 +41,30 @@ class User
     /**
      * Insert or update a user object to db.
      */
-    function save()
+    public function save()
     {
-        if ($this->id === null) {
-            $query = sprintf(self::INSERT_QUERY,
-                $this->username,
-                $this->password,
-                $this->email,
-                $this->bio,
-                $this->isAdmin            );
+
+        if($this->id === null) {
+            $st = Sql::getDB()->prepare('INSERT INTO users (username, password, email, bio, isadmin)
+                                                  VALUES(:username, :pw, :email, :bio, :isadmin)');
+
         } else {
-          $query = sprintf(self::UPDATE_QUERY,
-                $this->username,
-                $this->password,
-                $this->email,
-                $this->bio,
-                $this->isAdmin,
-                $this->id
-            );
+            $st = Sql::getDB()->prepare('UPDATE users SET username=:username, password=:pw, email=:email, 
+                                                  bio=:bio, isadmin=:isadmin WHERE id=:id');
+
+            $st->bindParam(':id', $this->id);
+
         }
 
-        return self::$app->db->exec($query);
+        $st->bindParam(':username', $this->username);
+        $st->bindParam(':password', $this->password);
+        $st->bindParam(':email', $this->email);
+        $st->bindParam(':bio', $this->bio);
+        $st->bindParam(':isadmin', $this->isAdmin);
+        $st->execute();
     }
 
-    function delete()
+    public function delete()
     {
         $query = sprintf(self::DELETE_QUERY,
             $this->id
@@ -71,61 +72,61 @@ class User
         return self::$app->db->exec($query);
     }
 
-    function getId()
+    public function getId()
     {
         return $this->id;
     }
 
-    function getUsername()
+    public function getUsername()
     {
         return $this->username;
     }
 
-    function getPassword()
+    public function getPassword()
     {
         return $this->password;
     }
 
-    function getEmail()
+    public function getEmail()
     {
         return $this->email;
     }
 
-    function getBio()
+    public function getBio()
     {
         return $this->bio;
     }
 
-    function isAdmin()
+    public function isAdmin()
     {
         return $this->isAdmin === "1";
     }
 
-    function setId($id)
+    public function setId($id)
     {
         $this->id = $id;
     }
 
-    function setUsername($username)
+    public function setUsername($username)
     {
         $this->username = $username;
     }
 
-    function setPassword($password)
+    public function setPassword($password)
     {
         $this->password = $password;
     }
 
-    function setEmail($email)
+    public function setEmail($email)
     {
         $this->email = $email;
     }
 
-    function setBio($bio)
+    public function setBio($bio)
     {
         $this->bio = $bio;
     }
-    function setIsAdmin($isAdmin)
+    public function setIsAdmin($isAdmin)
     {
         $this->isAdmin = $isAdmin;
     }
@@ -137,11 +138,16 @@ class User
      * @param string $userid
      * @return mixed User or null if not found.
      */
-    static function findById($userid)
+    public static function findById($userid)
     {
-        $query = sprintf(self::FIND_BY_ID_QUERY, $userid);
-        $result = self::$app->db->query($query, \PDO::FETCH_ASSOC);
-        $row = $result->fetch();
+        //$query = sprintf(self::FIND_BY_ID_QUERY, $userid);
+        //$result = self::$app->db->query($query, \PDO::FETCH_ASSOC);
+
+        $st = Sql::getDB()->prepare('SELECT * FROM users WHERE id=:id');
+        $st->bindParam(':id', $userid);
+        $st->execute();
+
+        $row = $st->fetch();
 
         if($row == false) {
             return null;
@@ -155,12 +161,19 @@ class User
      *
      * @param string $username
      * @return mixed User or null if not found.
+     *
+     *
      */
-    static function findByUser($username)
+    public static function findByUser($username)
     {
-        $query = sprintf(self::FIND_BY_NAME_QUERY, $username);
-        $result = self::$app->db->query($query, \PDO::FETCH_ASSOC);
-        $row = $result->fetch();
+        //$query = sprintf(self::FIND_BY_NAME_QUERY, $username);
+        //$result = self::$app->db->query($query, \PDO::FETCH_ASSOC);
+
+        $st = Sql::getDB()->prepare('SELECT * FROM users WHERE username=:username');
+        $st->bindParam(':username', $username);
+        $st->execute();
+
+        $row = $st->fetch();
 
         if($row == false) {
             return null;
@@ -170,7 +183,7 @@ class User
     }
 
     
-    static function all()
+    public static function all()
     {
         $query = "SELECT * FROM users";
         $results = self::$app->db->query($query);
@@ -179,13 +192,13 @@ class User
 
         foreach ($results as $row) {
             $user = User::makeFromSql($row);
-            array_push($users, $user);
+            $users[] = $user;
         }
 
         return $users;
     }
 
-    static function makeFromSql($row)
+    public static function makeFromSql($row)
     {
         return User::make(
             $row['id'],
@@ -200,5 +213,5 @@ class User
 }
 
 
-  User::$app = \Slim\Slim::getInstance();
+User::$app = \Slim\Slim::getInstance();
 

@@ -6,11 +6,7 @@ use ttm4135\webapp\models\User;
 
 class Auth
 {
-    function __construct()
-    {
-    }
-
-    static function checkCredentials($username, $password)
+    public static function checkCredentials($username, $password)
     {
         $user = User::findByUser($username);
 
@@ -18,17 +14,13 @@ class Auth
             return false;
         }
 
-        if( $user->getPassword() == $password)
-        {
-          return true;
-        }
-        return false;
+        return $user->getPassword() === $password;
     }
 
     /**
      * Check if is logged in.
      */
-    static function check()
+    public static function check()
     {
         return isset($_SESSION['userid']);
     }
@@ -36,7 +28,7 @@ class Auth
     /**
      * Check if the person is a guest.
      */
-    static function guest()
+    public static function guest()
     {
         return self::check() === false;
     }
@@ -44,34 +36,37 @@ class Auth
     /**
      * Get currently logged in user.
      */
-    static function user()
+    public static function user()
     {
         if (self::check()) {
             return User::findById($_SESSION['userid']);         
         }
+        return null;
     }
 
     /**
      * Is currently logged in user admin?
      */
-    static function isAdmin()
+    public static function isAdmin()
     {
         if (self::check()) {
           return self::user()->isAdmin();	// uses this classes user() method to retrieve the user from sql, then call isadmin on that object.
         }
 
+        return false;
     }
 
     /** 
      * Does the logged in user have r/w access to user details identified by $tuserid
      */
-    static function userAccess($tuserid) 
+    public static function userAccess($tuserid)
     {
-        if(self::user()->getId() == $tuserid)   //a user can change their account
+        if(self::user()->getId() === $tuserid)   //a user can change their account
         {
           return true;
         }
-        if (self::isAdmin() )           //admins can change any account
+
+        if (self::isAdmin())           //admins can change any account
         {
           return true;
         }

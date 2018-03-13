@@ -16,16 +16,14 @@ $view->parserOptions = array(
     'debug' => true
 );
 
+define('PATH', __DIR__);
+define('DB_USER', "infosik");
+define('DB_PW', "infosik"); //TODO change in prod
+define('DB_DOMAIN', 'localhost');
+define('DB_NAME', 'app');
+define('DB_PATH', PATH . '/db/' . DB_NAME);
 
-try {
-    // Create (connect to) SQLite database in file
-    $app->db = new PDO('sqlite:/tmp/ssj/app.db');   //TODO update with location of your database
-    // Set errormode to exceptions
-    $app->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    echo $e->getMessage();
-    exit();
-}
+$app->db = \ttm4135\webapp\Sql::getDB();
 
 
 $ns ='ttm4135\\webapp\\controllers\\';
