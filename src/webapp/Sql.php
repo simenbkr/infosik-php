@@ -2,6 +2,10 @@
 
 namespace ttm4135\webapp;
 
+if(!defined('DB_PATH')){
+    define('DB_PATH', __DIR__ . '/../../db/app.db');
+}
+
 class Sql extends \PDO{
 
     public static $__instance = null;
@@ -15,7 +19,7 @@ class Sql extends \PDO{
 
     public function __construct()
     {
-        parent::__construct('sqlite:' . '../db/app.db');
+        parent::__construct('sqlite:' . DB_PATH);
         parent::setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
 
@@ -24,6 +28,10 @@ class Sql extends \PDO{
      */
     public static function up()
     {
+        if(self::$__instance === null){
+            self::$__instance = self::getDB();
+        }
+
         $q1 = "CREATE TABLE users (id INTEGER PRIMARY KEY, username VARCHAR(50), password VARCHAR(50), email varchar(50),  bio varhar(50), isadmin INTEGER);";
 
         self::$__instance->exec($q1);
@@ -35,6 +43,9 @@ class Sql extends \PDO{
 
     static function insertDummyUsers()
     {
+        if(self::$__instance === null){
+            self::$__instance = self::getDB();
+        }
 
 
         $q1 = "INSERT INTO users(username, password, isadmin) VALUES ('admin', 'admin', 1)";
@@ -49,6 +60,10 @@ class Sql extends \PDO{
 
     static function down()
     {
+        if(self::$__instance === null){
+            self::$__instance = self::getDB();
+        }
+
         $q1 = "DROP TABLE users";
 
         self::$__instance->exec($q1);
@@ -57,3 +72,5 @@ class Sql extends \PDO{
     }
 
 }
+
+Sql::$__instance = Sql::getDB();
