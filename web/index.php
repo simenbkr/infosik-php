@@ -9,6 +9,19 @@ if (! extension_loaded('openssl')) {
 }
 */
 
+
+setlocale(LC_ALL, 'nb_NO.utf-8');
+date_default_timezone_set('Europe/Oslo');
+ini_set('memory_limit', '256M');
+
+ini_set('session.cookie_httponly',1);
+ini_set('session.use_only_cookies',1);
+
+ini_set('session.gc_maxlifetime', 36000000);
+ini_set('session.gc_probability', 1);
+ini_set('session.gc_divisor', 1000);
+session_save_path('../sessions');
+
 session_cache_limiter(false);
 session_start();
 
@@ -18,3 +31,12 @@ else {
     $app = require __DIR__ . '/../src/app.php';
     $app->run();
 }
+
+/*
+
+TODO:
+- Egen mappe for sessions
+- Cookie-flagg
+
+
+*/

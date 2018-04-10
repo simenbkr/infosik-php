@@ -49,12 +49,6 @@ class Sql extends \PDO{
             self::$__instance = self::getDB();
         }
 
-        //$q1 = "INSERT INTO users(username, password, isadmin) VALUES ('admin', 'admin', 1)";
-        //$q2 = "INSERT INTO users(username, password) VALUES ('bob', 'bob')";
-
-        //self::$__instance->exec($q1);
-        //self::$__instance->exec($q2);
-
         $admin_salt = User::genRandomStr();
         $admin_pw = User::hashPassword('admin', $admin_salt);
         $query = "INSERT INTO users (username, password, salt, isadmin) VALUES('admin','$admin_pw','$admin_salt', '1' )";
