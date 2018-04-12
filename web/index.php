@@ -30,7 +30,7 @@ session_save_path(__DIR__ . '/../sessions');
 session_cache_limiter(false);
 session_start();
 
-if (preg_match('/\.(?:png|jpg|jpeg|gif|txt|css|js)$/', $_SERVER["REQUEST_URI"]))
+if (preg_match('/\.(?:png|jpg|jpeg|gif|txt|css|js)$/', filter_var($_SERVER["REQUEST_URI"], FILTER_VALIDATE_URL)))
     return false; // serve the requested resource as-is.
 else {
     $app = require __DIR__ . '/../src/app.php';
