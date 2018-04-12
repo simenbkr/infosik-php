@@ -14,6 +14,7 @@
 <input type="text" name="username"> <br />
 <label>Password: </label>
 <input type="password" name="password"> <br />
+<input type="hidden" name="token" value="{{$_SESSION['token']}}">
 <input type="submit" name="submit" value="Log in">
 </form>
 {% endblock %}

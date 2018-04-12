@@ -13,7 +13,7 @@ class LoginController extends Controller
 
     function index()
     {
-        if (Auth::check()) {
+        if (Auth::check() && hash_equals($_SESSION['token'], $request->post('token'))) {
             $username = Auth::user()->getUserName();
             $this->app->flash('info', 'You are already logged in as ' . $username);
             $this->app->redirect('/');
@@ -28,7 +28,7 @@ class LoginController extends Controller
         $username = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
         $password = filter_var($request->post('password'), FILTER_SANITIZE_STRING);
 
-        if ( Auth::checkCredentials($username, $password) ) {
+        if ( Auth::checkCredentials($username, $password)  && hash_equals($_SESSION['token'], $request->post('token'))) {
             $user = User::findByUser($username);
             $_SESSION['userid'] = $user->getId();
             $this->app->flash('info', "You are now successfully logged in as " . $user->getUsername() . ".");
