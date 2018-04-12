@@ -16,6 +16,11 @@ ini_set('memory_limit', '256M');
 
 ini_set('session.cookie_httponly',1);
 ini_set('session.use_only_cookies',1);
+ini_set('session.cookie_secure', 1);
+ini_set('session.cookie.lifetime', 0);
+ini_set('session.use_strict_mode',1);
+ini_set('session.sid_length',48);
+ini_set('session.hash_function', "sha256");
 
 ini_set('session.gc_maxlifetime', 36000000);
 ini_set('session.gc_probability', 1);
@@ -25,7 +30,7 @@ session_save_path(__DIR__ . '/../sessions');
 session_cache_limiter(false);
 session_start();
 
-if (preg_match('/\.(?:png|jpg|jpeg|gif|txt|css|js)$/', $_SERVER["REQUEST_URI"]))
+if (preg_match('/\.(?:png|jpg|jpeg|gif|txt|css|js)$/', filter_var($_SERVER["REQUEST_URI"], FILTER_VALIDATE_URL)))
     return false; // serve the requested resource as-is.
 else {
     $app = require __DIR__ . '/../src/app.php';

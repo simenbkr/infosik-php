@@ -12,10 +12,17 @@ class UserController extends Controller
         parent::__construct();
     }
 
-    function index()     
+    function index()
     {
         if (Auth::guest()) {
-            $this->render('newUserForm.twig', []);
+
+            if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
+
+                $this->render('newUserForm.twig', []);
+            } else {
+                $this->app->flash('info', 'You are not allowed to create a user!');
+                $this->app->redirect('/');
+            }
         } else {
             $username = Auth::user()->getUserName();
             $this->app->flash('info', 'You are already logged in as ' . $username);
@@ -23,10 +30,10 @@ class UserController extends Controller
         }
     }
 
-    function create()		  
+    function create()
     {
 
-        if($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
+        if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
 
             $request = $this->app->request;
             $username = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
@@ -60,8 +67,7 @@ class UserController extends Controller
 
     function delete($tuserid)
     {
-        if(Auth::userAccess($tuserid))
-        {
+        if (Auth::userAccess($tuserid)) {
             $user = User::findById($tuserid);
             $user->delete();
             $this->app->flash('info', 'User ' . $user->getUsername() . '  with id ' . $tuserid . ' has been deleted.');
@@ -75,41 +81,39 @@ class UserController extends Controller
 
     function deleteMultiple()
     {
-      if(Auth::isAdmin()){
-          $request = $this->app->request;
-          $userlist = $request->post('userlist'); 
-          $deleted = [];
+        if (Auth::isAdmin()) {
+            $request = $this->app->request;
+            $userlist = $request->post('userlist');
+            $deleted = [];
 
-          if($userlist == NULL){
-              $this->app->flash('info','No user to be deleted.');
-          } else {
-               foreach( $userlist as $duserid)
-               {
+            if ($userlist == NULL) {
+                $this->app->flash('info', 'No user to be deleted.');
+            } else {
+                foreach ($userlist as $duserid) {
                     $user = User::findById($duserid);
-                    if(  $user->delete() == 1) { //1 row affect by delete, as expect..
-                      $deleted[] = $user->getId();
+                    if ($user->delete() == 1) { //1 row affect by delete, as expect..
+                        $deleted[] = $user->getId();
                     }
-               }
-               $this->app->flash('info', 'Users with IDs  ' . implode(',',$deleted) . ' have been deleted.');
-          }
+                }
+                $this->app->flash('info', 'Users with IDs  ' . implode(',', $deleted) . ' have been deleted.');
+            }
 
-          $this->app->redirect('/admin');
-      } else {
-          $username = Auth::user()->getUserName();
-          $this->app->flash('info', 'You do not have access this resource. You are logged in as ' . $username);
-          $this->app->redirect('/');
-      }
+            $this->app->redirect('/admin');
+        } else {
+            $username = Auth::user()->getUserName();
+            $this->app->flash('info', 'You do not have access this resource. You are logged in as ' . $username);
+            $this->app->redirect('/');
+        }
     }
 
 
-    function show($tuserid)   
+    function show($tuserid)
     {
-        if(Auth::userAccess($tuserid))
-        {
-          $user = User::findById($tuserid);
-          $this->render('showuser.twig', [
-            'user' => $user
-          ]);
+        if (Auth::userAccess($tuserid)) {
+            $user = User::findById($tuserid);
+            $this->render('showuser.twig', [
+                'user' => $user
+            ]);
         } else {
             $username = Auth::user()->getUserName();
             $this->app->flash('info', 'You do not have access this resource. You are logged in as ' . $username);
@@ -118,7 +122,7 @@ class UserController extends Controller
     }
 
     function newuser()
-    { 
+    {
 
         $user = User::makeEmpty();
 
@@ -127,15 +131,15 @@ class UserController extends Controller
 
             $request = $this->app->request;
 
-            $username   = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
-            $password   = filter_var($request->post('password'), FILTER_SANITIZE_STRING);
-            $salt       = User::genRandomStr();
-            $password   = User::hashPassword($password, $salt);
-            $email      = filter_var($request->post('email'), FILTER_SANITIZE_EMAIL);
-            $bio        = filter_var($request->post('bio'),  FILTER_SANITIZE_STRING);
+            $username = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
+            $password = filter_var($request->post('password'), FILTER_SANITIZE_STRING);
+            $salt = User::genRandomStr();
+            $password = User::hashPassword($password, $salt);
+            $email = filter_var($request->post('email'), FILTER_SANITIZE_EMAIL);
+            $bio = filter_var($request->post('bio'), FILTER_SANITIZE_STRING);
 
             $isAdmin = ($request->post('isAdmin') != null ? 1 : 0);
-            
+
 
             $user->setUsername($username);
             $user->setPassword($password);
@@ -156,12 +160,12 @@ class UserController extends Controller
         }
     }
 
-    function edit($tuserid)    
-    { 
+    function edit($tuserid)
+    {
 
         $user = User::findById($tuserid);
 
-        if (! $user) {
+        if (!$user) {
             throw new \Exception("Unable to fetch logged in user's object from db.");
         } elseif (Auth::userAccess($tuserid)) {
 
@@ -174,7 +178,7 @@ class UserController extends Controller
             $bio = $request->post('bio');
 
             $isAdmin = ($request->post('isAdmin') != null);
-            
+
 
             $user->setUsername($username);
             $user->setPassword($password);
