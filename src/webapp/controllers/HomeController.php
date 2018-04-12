@@ -14,7 +14,7 @@ class HomeController extends Controller
 
     function index()     
     {
-        if (Auth::check() && hash_equals($_SESSION['token'], $request->post('token'))) {
+        if (Auth::check()) {
             $user = Auth::user();
             $this->render('base.twig', []);
         } else {

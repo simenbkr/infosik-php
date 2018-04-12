@@ -13,7 +13,7 @@ class LoginController extends Controller
 
     function index()
     {
-        if (Auth::check() && hash_equals($_SESSION['token'], $request->post('token'))) {
+        if (Auth::check()) {
             $username = Auth::user()->getUserName();
             $this->app->flash('info', 'You are already logged in as ' . $username);
             $this->app->redirect('/');

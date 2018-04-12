@@ -14,11 +14,11 @@ class AdminController extends Controller
 
     function index()     
     {
-        if (Auth::isAdmin() && hash_equals($_SESSION['token'], $request->post('token'))) {
+        if (Auth::isAdmin()) {
             $users = User::all();
             $this->render('users.twig', ['users' => $users]);
         } else {
-            if(Auth::user() != null && hash_equals($_SESSION['token'], $request->post('token'))) {
+            if(Auth::user() != null) {
                 $username = Auth::user()->getUserName();
                 $this->app->flash('info', 'You do not have access this resource. You are logged in as ' . $username);
                 $this->app->redirect('/');
@@ -31,11 +31,11 @@ class AdminController extends Controller
 
     function create()
     {
-        if (Auth::isAdmin() && hash_equals($_SESSION['token'], $request->post('token'))) {
+        if (Auth::isAdmin()) {
           $user = User::makeEmpty();
           $this->render('showuser.twig', [
-            'user' => $user
-          ]);
+              'user' => $user
+              ]);
         } else {
             $username = Auth::user()->getUserName();
             $this->app->flash('info', 'You do not have access this resource. You are logged in as ' . $username);

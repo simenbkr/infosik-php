@@ -14,8 +14,8 @@ class UserController extends Controller
 
     function index()
     {
-        if (Auth::guest() && hash_equals($_SESSION['token'], $request->post('token'))) {
-
+        if (Auth::guest()) {
+            
             if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
 
                 $this->render('newUserForm.twig', []);
@@ -32,10 +32,10 @@ class UserController extends Controller
 
     function create()
     {
+        $request = $this->app->request;
+        
+        if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS' && hash_equals($_SESSION['token'], $request->post('token'))) {
 
-        if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
-
-            $request = $this->app->request;
             $username = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
             $password = filter_var($request->post('password'), FILTER_SANITIZE_STRING);
             $user = User::makeEmpty();
@@ -67,7 +67,7 @@ class UserController extends Controller
 
     function delete($tuserid)
     {
-        if (Auth::userAccess($tuserid) && hash_equals($_SESSION['token'], $request->post('token'))) {
+        if (Auth::userAccess($tuserid)) {
             $user = User::findById($tuserid);
             $user->delete();
             $this->app->flash('info', 'User ' . $user->getUsername() . '  with id ' . $tuserid . ' has been deleted.');
@@ -81,8 +81,9 @@ class UserController extends Controller
 
     function deleteMultiple()
     {
+        $request = $this->app->request;
         if (Auth::isAdmin() && hash_equals($_SESSION['token'], $request->post('token'))) {
-            $request = $this->app->request;
+            
             $userlist = $request->post('userlist');
             $deleted = [];
 
@@ -109,11 +110,11 @@ class UserController extends Controller
 
     function show($tuserid)
     {
-        if (Auth::userAccess($tuserid) && hash_equals($_SESSION['token'], $request->post('token'))) {
+        if (Auth::userAccess($tuserid)) {
             $user = User::findById($tuserid);
             $this->render('showuser.twig', [
                 'user' => $user
-            ]);
+                ]);
         } else {
             $username = Auth::user()->getUserName();
             $this->app->flash('info', 'You do not have access this resource. You are logged in as ' . $username);
@@ -125,11 +126,9 @@ class UserController extends Controller
     {
 
         $user = User::makeEmpty();
-
+        $request = $this->app->request;
+        
         if (Auth::isAdmin() && hash_equals($_SESSION['token'], $request->post('token'))) {
-
-
-            $request = $this->app->request;
 
             $username = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
             $password = filter_var($request->post('password'), FILTER_SANITIZE_STRING);
@@ -164,13 +163,10 @@ class UserController extends Controller
     {
 
         $user = User::findById($tuserid);
-
+        $request = $this->app->request;
         if (!$user) {
             throw new \Exception("Unable to fetch logged in user's object from db.");
         } elseif (Auth::userAccess($tuserid) && hash_equals($_SESSION['token'], $request->post('token'))) {
-
-
-            $request = $this->app->request;
 
             $username = $request->post('username');
             $password = $request->post('password');

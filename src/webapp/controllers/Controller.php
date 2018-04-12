@@ -13,13 +13,14 @@ class Controller
 
     function render($template, $variables = [])
     {     
-      if (! Auth::guest() && hash_equals($_SESSION['token'], $request->post('token'))) {
+      if (! Auth::guest()) {
             $user = Auth::user();
             $variables['isLoggedIn'] = true;
             $variables['isAdmin'] = $user->isAdmin();
             $variables['loggedInUsername'] = $user->getUsername();
             $variables['loggedInID'] = $user->getId();
         }
+        $variables['token'] = $_SESSION['token']
         print $this->app->render($template, $variables);
     }
 }
