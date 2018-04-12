@@ -21,7 +21,7 @@
 <input type="text" name="bio" value="{{user.bio}}"> <br />
 <label>Administrator: </label>
 <input type="checkbox" name="isAdmin" value="true" {% if user.isAdmin  %} checked {% endif %}">
-
+<input type="hidden" name="token" value="{{$_SESSION['token']}}">
 <input type="submit" name="submit" value="Submit">
 </form>
 {% endblock %}

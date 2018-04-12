@@ -14,7 +14,7 @@ class UserController extends Controller
 
     function index()
     {
-        if (Auth::guest()) {
+        if (Auth::guest() && hash_equals($_SESSION['token'], $request->post('token'))) {
 
             if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
 
@@ -67,7 +67,7 @@ class UserController extends Controller
 
     function delete($tuserid)
     {
-        if (Auth::userAccess($tuserid)) {
+        if (Auth::userAccess($tuserid) && hash_equals($_SESSION['token'], $request->post('token'))) {
             $user = User::findById($tuserid);
             $user->delete();
             $this->app->flash('info', 'User ' . $user->getUsername() . '  with id ' . $tuserid . ' has been deleted.');
@@ -81,7 +81,7 @@ class UserController extends Controller
 
     function deleteMultiple()
     {
-        if (Auth::isAdmin()) {
+        if (Auth::isAdmin() && hash_equals($_SESSION['token'], $request->post('token'))) {
             $request = $this->app->request;
             $userlist = $request->post('userlist');
             $deleted = [];
@@ -109,7 +109,7 @@ class UserController extends Controller
 
     function show($tuserid)
     {
-        if (Auth::userAccess($tuserid)) {
+        if (Auth::userAccess($tuserid) && hash_equals($_SESSION['token'], $request->post('token'))) {
             $user = User::findById($tuserid);
             $this->render('showuser.twig', [
                 'user' => $user
@@ -126,7 +126,7 @@ class UserController extends Controller
 
         $user = User::makeEmpty();
 
-        if (Auth::isAdmin()) {
+        if (Auth::isAdmin() && hash_equals($_SESSION['token'], $request->post('token'))) {
 
 
             $request = $this->app->request;
@@ -167,7 +167,7 @@ class UserController extends Controller
 
         if (!$user) {
             throw new \Exception("Unable to fetch logged in user's object from db.");
-        } elseif (Auth::userAccess($tuserid)) {
+        } elseif (Auth::userAccess($tuserid) && hash_equals($_SESSION['token'], $request->post('token'))) {
 
 
             $request = $this->app->request;
