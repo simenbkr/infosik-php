@@ -20,7 +20,7 @@ ini_set('session.use_only_cookies',1);
 ini_set('session.gc_maxlifetime', 36000000);
 ini_set('session.gc_probability', 1);
 ini_set('session.gc_divisor', 1000);
-session_save_path('../sessions');
+session_save_path(__DIR__ . '/../sessions');
 
 session_cache_limiter(false);
 session_start();
