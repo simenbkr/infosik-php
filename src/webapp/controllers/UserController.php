@@ -25,7 +25,8 @@ class UserController extends Controller
 
     function create()		  
     {
-        if($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS' && hash_equals($_SESSION['token'], $request->post('token'))) {
+
+        if($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
 
             $request = $this->app->request;
             $username = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
@@ -59,7 +60,7 @@ class UserController extends Controller
 
     function delete($tuserid)
     {
-        if(Auth::userAccess($tuserid) && hash_equals($_SESSION['token'], $request->post('token')))
+        if(Auth::userAccess($tuserid))
         {
             $user = User::findById($tuserid);
             $user->delete();
@@ -74,7 +75,7 @@ class UserController extends Controller
 
     function deleteMultiple()
     {
-      if(Auth::isAdmin() && hash_equals($_SESSION['token'], $request->post('token'))){
+      if(Auth::isAdmin()){
           $request = $this->app->request;
           $userlist = $request->post('userlist'); 
           $deleted = [];
@@ -103,7 +104,7 @@ class UserController extends Controller
 
     function show($tuserid)   
     {
-        if(Auth::userAccess($tuserid) && hash_equals($_SESSION['token'], $request->post('token')))
+        if(Auth::userAccess($tuserid))
         {
           $user = User::findById($tuserid);
           $this->render('showuser.twig', [
@@ -121,7 +122,7 @@ class UserController extends Controller
 
         $user = User::makeEmpty();
 
-        if (Auth::isAdmin() && hash_equals($_SESSION['token'], $request->post('token'))) {
+        if (Auth::isAdmin()) {
 
 
             $request = $this->app->request;
@@ -162,7 +163,7 @@ class UserController extends Controller
 
         if (! $user) {
             throw new \Exception("Unable to fetch logged in user's object from db.");
-        } elseif (Auth::userAccess($tuserid) && hash_equals($_SESSION['token'], $request->post('token')) {
+        } elseif (Auth::userAccess($tuserid)) {
 
 
             $request = $this->app->request;

@@ -25,11 +25,6 @@ session_save_path(__DIR__ . '/../sessions');
 session_cache_limiter(false);
 session_start();
 
-# Generating CSRF token
-if (empty($_SESSION['token'])) {
-    $_SESSION['token'] = bin2hex(random_bytes(32));
-}
-
 if (preg_match('/\.(?:png|jpg|jpeg|gif|txt|css|js)$/', $_SERVER["REQUEST_URI"]))
     return false; // serve the requested resource as-is.
 else {
