@@ -18,9 +18,14 @@ class AdminController extends Controller
             $users = User::all();
             $this->render('users.twig', ['users' => $users]);
         } else {
-            $username = Auth::user()->getUserName();
-            $this->app->flash('info', 'You do not have access this resource. You are logged in as ' . $username);
-            $this->app->redirect('/');
+            if(Auth::user() != null) {
+                $username = Auth::user()->getUserName();
+                $this->app->flash('info', 'You do not have access this resource. You are logged in as ' . $username);
+                $this->app->redirect('/');
+            } else {
+                $this->app->flash('info', 'You do not have access this resource. You are not logged in.');
+                $this->app->redirect('/');
+            }
         }
     }
 
