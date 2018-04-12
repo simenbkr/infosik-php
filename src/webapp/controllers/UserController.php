@@ -25,30 +25,37 @@ class UserController extends Controller
 
     function create()		  
     {
-        $request    = $this->app->request;
-        $username   = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
-        $password   = filter_var($request->post('password'), FILTER_SANITIZE_STRING);
-        $user       = User::makeEmpty();
 
-        $user->setUsername($username);
-        $user->setSalt(User::genRandomStr());
-        $user->setPassword(User::hashPassword($password, $user->getSalt()));
-        $user->setIsAdmin(0);
+        if($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
 
-        if($request->post('email')) {
-          $email = filter_var($request->post('email'), FILTER_SANITIZE_EMAIL);
-          $user->setEmail($email);
+            $request = $this->app->request;
+            $username = filter_var($request->post('username'), FILTER_SANITIZE_STRING);
+            $password = filter_var($request->post('password'), FILTER_SANITIZE_STRING);
+            $user = User::makeEmpty();
+
+            $user->setUsername($username);
+            $user->setSalt(User::genRandomStr());
+            $user->setPassword(User::hashPassword($password, $user->getSalt()));
+            $user->setIsAdmin(0);
+
+            if ($request->post('email')) {
+                $email = filter_var($request->post('email'), FILTER_SANITIZE_EMAIL);
+                $user->setEmail($email);
+            }
+
+            if ($request->post('bio')) {
+                $bio = filter_var($request->post('bio'), FILTER_SANITIZE_STRING);
+                $user->setBio($bio);
+            }
+
+
+            $user->save();
+            $this->app->flash('info', 'Thanks for creating a user. You may now log in.');
+            $this->app->redirect('/login');
+        } else {
+            $this->app->flash('info', 'You are not allowed to create a user!');
+            $this->app->redirect('/');
         }
-
-        if($request->post('bio')) {
-          $bio = filter_var($request->post('bio'), FILTER_SANITIZE_STRING);
-          $user->setBio($bio);
-        }
-
-        
-        $user->save();
-        $this->app->flash('info', 'Thanks for creating a user. You may now log in.');
-        $this->app->redirect('/login');
     }
 
     function delete($tuserid)
