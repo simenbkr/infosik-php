@@ -39,7 +39,6 @@ $app->post('/logout',$ns . 'LoginController:logout');  //logs out    <all users>
 $app->get('/logout', $ns . 'LoginController:logout');  //logs out    <all users>
 $app->get( '/register', $ns . 'UserController:index');     //registration form     <all visitors with valid personal cert>
 $app->post('/register', $ns . 'UserController:create');    //registration action   <all visitors with valid personal cert>
-$app->get('/admin',  $ns  .  'AdminController:index');
 $app->get('/admin/delete/:userid', $ns . 'UserController:delete');     //delete user userid        <staff and group members>
 $app->post('/admin/deleteMultiple', $ns . 'UserController:deleteMultiple');     //delete user userid        <staff and group members>
 $app->get('/admin/edit/:userid',    $ns . 'UserController:show');       //add user userid          <staff and group members>
