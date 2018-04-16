@@ -59,6 +59,9 @@ class UserController extends Controller
             $user->save();
             $this->app->flash('info', 'Thanks for creating a user. You may now log in.');
             $this->app->redirect('/login');
+        } elseif(!hash_equals($_SESSION['token'], $request->post('token'))){
+            $this->app->flash('info', 'CSRF-token error!');
+            $this->app->redirect('/');
         } else {
             $this->app->flash('info', 'You are not allowed to create a user!');
             $this->app->redirect('/');
@@ -83,7 +86,7 @@ class UserController extends Controller
     {
         $request = $this->app->request;
         if (Auth::isAdmin() && hash_equals($_SESSION['token'], $request->post('token'))) {
-            
+
             $userlist = $request->post('userlist');
             $deleted = [];
 
@@ -100,6 +103,10 @@ class UserController extends Controller
             }
 
             $this->app->redirect('/admin');
+        }
+        elseif(!hash_equals($_SESSION['token'], $request->post('token'))){
+            $this->app->flash('error', 'CSRF-token error!');
+            $this->app->redirect('/');
         } else {
             $username = Auth::user()->getUserName();
             $this->app->flash('info', 'You do not have access this resource. You are logged in as ' . $username);
@@ -151,7 +158,9 @@ class UserController extends Controller
 
             $this->app->redirect('/admin');
 
-
+        } elseif(!hash_equals($_SESSION['token'], $request->post('token'))){
+            $this->app->flash('error', 'CSRF-token error!');
+            $this->app->redirect('/');
         } else {
             $username = $user->getUserName();
             $this->app->flash('info', 'You do not have access this resource. You are logged in as ' . $username);
@@ -188,8 +197,9 @@ class UserController extends Controller
             $user = User::findById($tuserid);
 
             $this->render('showuser.twig', ['user' => $user]);
-
-
+        } elseif(!hash_equals($_SESSION['token'], $request->post('token'))){
+            $this->app->flash('error', 'CSRF-token error!');
+            $this->app->redirect('/');
         } else {
             $username = $user->getUserName();
             $this->app->flash('info', 'You do not have access this resource. You are logged in as ' . $username);

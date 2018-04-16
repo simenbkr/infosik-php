@@ -33,6 +33,10 @@ class LoginController extends Controller
             $_SESSION['userid'] = $user->getId();
             $this->app->flash('info', "You are now successfully logged in as " . $user->getUsername() . ".");
             $this->app->redirect('/');
+        }
+        elseif(!hash_equals($_SESSION['token'], $request->post('token'))) {
+            $this->app->flashNow('error', 'CSRF-token error!');
+            $this->render('login.twig', []);
         } else {
             $this->app->flashNow('error', 'Incorrect username/password combination.');
             $this->render('login.twig', []);
