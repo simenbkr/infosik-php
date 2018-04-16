@@ -21,7 +21,4 @@ class HomeController extends Controller
             $this->render('base.twig',[]);
         }
     }
-
-
-
 }

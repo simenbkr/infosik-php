@@ -20,7 +20,9 @@ class Controller
             $variables['loggedInUsername'] = $user->getUsername();
             $variables['loggedInID'] = $user->getId();
         }
-        $variables['token'] = $_SESSION['token'];
+        if(isset($_SESSION['token'])) {
+            $variables['token'] = $_SESSION['token'];
+        }
         print $this->app->render($template, $variables);
     }
 }
