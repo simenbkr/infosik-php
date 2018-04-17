@@ -31,7 +31,8 @@ session_cache_limiter(false);
 session_start();
 
 # Generating CSRF token
-$_SESSION['token'] = bin2hex(openssl_random_pseudo_bytes(32));
+if($_SERVER['REQUEST_METHOD'] === 'GET')
+    $_SESSION['token'] = bin2hex(openssl_random_pseudo_bytes(32));
 
 
 if (preg_match('/\.(?:png|jpg|jpeg|gif|txt|css|js)$/', filter_var($_SERVER["REQUEST_URI"], FILTER_VALIDATE_URL)))
