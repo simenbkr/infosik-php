@@ -1,6 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 'on');
+error_reporting(0);
+ini_set('display_errors', '0');
 
 
 /*
@@ -40,12 +40,3 @@ else {
     $app = require __DIR__ . '/../src/app.php';
     $app->run();
 }
-
-/*
-
-TODO:
-- Egen mappe for sessions
-- Cookie-flagg
-
-
-*/
