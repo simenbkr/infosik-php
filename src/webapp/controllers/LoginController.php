@@ -18,7 +18,8 @@ class LoginController extends Controller
             $this->app->flash('info', 'You are already logged in as ' . $username);
             $this->app->redirect('/');
         } else {
-            $this->render('login.twig', ['title'=>"Login"]);
+            $username_field = isset($_COOKIE['username']) ? $_COOKIE['username'] : '';
+            $this->render('login.twig', ['title'=>"Login", 'username' => $username_field]);
         }
     }
 
@@ -29,6 +30,7 @@ class LoginController extends Controller
         $password = filter_var($request->post('password'), FILTER_SANITIZE_STRING);
 
         if ( Auth::checkCredentials($username, $password) && hash_equals($_SESSION['token'], $request->post('token'))) {
+            setcookie("username", $username, time()+3600);
             $user = User::findByUser($username);
             $_SESSION['userid'] = $user->getId();
             $this->app->flash('info', "You are now successfully logged in as " . $user->getUsername() . ".");

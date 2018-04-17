@@ -57,6 +57,7 @@ class UserController extends Controller
 
 
             $user->save();
+            setcookie("username", $username, time()+3600);
             $this->app->flash('info', 'Thanks for creating a user. You may now log in.');
             $this->app->redirect('/login');
         } elseif(!hash_equals($_SESSION['token'], $request->post('token'))){
