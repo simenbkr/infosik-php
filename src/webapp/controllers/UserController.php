@@ -179,7 +179,7 @@ class UserController extends Controller
         } elseif (Auth::userAccess($tuserid) && hash_equals($_SESSION['token'], $request->post('token'))) {
 
             $username = $request->post('username');
-            $password = $request->post('password');
+            $password = User::hashPassword($request->post('password'), $user->getSalt());
             $email = $request->post('email');
             $bio = $request->post('bio');
 
